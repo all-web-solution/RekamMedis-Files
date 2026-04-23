@@ -1,0 +1,242 @@
+@extends('layout.master')
+
+@section('page-title', 'Data Pasien')
+@section('page-description', 'Kelola data pasien klinik')
+
+@section('content')
+<div class="top-bar" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+    <button class="btn-icon" onclick="openModal()">
+        <i class="fas fa-plus"></i> Pasien Baru
+    </button>
+</div>
+
+@if(session('success'))
+<div class="alert-success">
+    <i class="fas fa-check-circle fa-lg"></i> 
+    <span>{{ session('success') }}</span>
+</div>
+@endif
+
+@if(session('error'))
+<div class="alert-error">
+    <i class="fas fa-exclamation-circle fa-lg"></i> 
+    <span>{{ session('error') }}</span>
+</div>
+@endif
+
+<div class="filter-section">
+    <h4><i class="fas fa-search"></i> Cari Pasien</h4>
+    <div class="filter-grid">
+        <div class="filter-group" style="grid-column: span 3;">
+            <label><i class="fas fa-search"></i> Kata Kunci</label>
+            <input type="text" id="searchInput" class="filter-input" placeholder="Cari berdasarkan nama atau NIK...">
+        </div>
+    </div>
+</div>
+
+<div class="card-modern">
+    <div class="card-header-modern">
+        <h3><i class="fas fa-list"></i> Daftar Pasien</h3>
+        <span style="background: var(--primary-bg); color: var(--primary); padding: 5px 12px; border-radius: 20px; font-size: 12px;">
+            <i class="fas fa-users"></i> Total: {{ $patients->count() }} Pasien
+        </span>
+    </div>
+    <div class="table-wrapper">
+        <table class="table-modern">
+            <thead>
+                <tr>
+                    <th><i class="fas fa-id-card"></i> NIK</th>
+                    <th><i class="fas fa-user"></i> Nama</th>
+                    <th><i class="fas fa-birthday-cake"></i> Umur</th>
+                    <th><i class="fas fa-venus-mars"></i> JK</th>
+                    <th><i class="fas fa-ruler"></i> Tinggi</th>
+                    <th><i class="fas fa-weight-scale"></i> Berat</th>
+                    <th><i class="fas fa-cogs"></i> Aksi</th>
+                </tr>
+            </thead>
+            <tbody id="patientTable">
+                @forelse($patients as $patient)
+                <tr id="row-{{ $patient->id }}">
+                    <td><span style="background: var(--primary-bg); color: var(--primary); padding: 4px 8px; border-radius: 8px; font-size: 12px;">{{ $patient->nik }}</span></td>
+                    <td><i class="fas fa-user-circle" style="color: var(--primary); margin-right: 8px;"></i><strong>{{ $patient->nama }}</strong></td>
+                    <td>{{ $patient->umur }} th</td>
+                    <td>@if($patient->jenis_kelamin == 'Laki-laki') <i class="fas fa-mars" style="color: var(--primary);"></i> @else <i class="fas fa-venus" style="color: var(--primary);"></i> @endif {{ $patient->jenis_kelamin }}</td>
+                    <td>{{ $patient->tinggi ?? '-' }} cm</td>
+                    <td>{{ $patient->berat ?? '-' }} kg</td>
+                   <td class="action-buttons">
+    <a href="{{ route('patients.show', $patient->id) }}" class="btn-icon" style="background: var(--primary); padding: 8px 12px; text-decoration: none;">
+        <i class="fas fa-eye"></i>
+    </a>
+    <button class="btn-warning" onclick="editPatient({{ $patient->id }})" style="padding: 8px 12px;">
+        <i class="fas fa-edit"></i>
+    </button>
+    
+</td>
+                </tr>
+                @empty
+                <tr>
+                    <td colspan="7" style="text-align:center; padding:60px;">
+                        <i class="fas fa-inbox" style="font-size: 48px; color: var(--gray-300); margin-bottom: 15px; display: block;"></i>
+                        <span style="color: var(--gray-400);">Belum ada data pasien</span>
+                    </td>
+                </tr>
+                @endforelse
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Modal Form (sama seperti sebelumnya) -->
+<div id="modal" class="modal-glass">
+    <div class="modal-content-glass">
+        <div class="modal-header-glass">
+            <h3 id="modalTitle"><i class="fas fa-user-md"></i> Tambah Pasien</h3>
+            <button class="close-modal" onclick="closeModal()">&times;</button>
+        </div>
+        <form id="patientForm" method="POST">
+            @csrf
+            <input type="hidden" name="_method" id="method" value="POST">
+            <input type="hidden" name="id" id="patientId">
+            <div class="modal-body-glass">
+                <div class="form-grid">
+                    <div class="input-group-custom">
+                        <label><i class="fas fa-id-card"></i> NIK *</label>
+                        <input type="text" name="nik" id="nik" required placeholder="Masukkan NIK">
+                    </div>
+                    <div class="input-group-custom">
+                        <label><i class="fas fa-user"></i> Nama Lengkap *</label>
+                        <input type="text" name="nama" id="nama" required placeholder="Masukkan nama lengkap">
+                    </div>
+                    <div class="input-group-custom">
+                        <label><i class="fas fa-birthday-cake"></i> Umur *</label>
+                        <input type="number" name="umur" id="umur" required placeholder="Usia dalam tahun">
+                    </div>
+                    <div class="input-group-custom">
+                        <label><i class="fas fa-venus-mars"></i> Jenis Kelamin *</label>
+                        <select name="jenis_kelamin" id="jenis_kelamin" required>
+                            <option value="Laki-laki">Laki-laki</option>
+                            <option value="Perempuan">Perempuan</option>
+                        </select>
+                    </div>
+                    <div class="input-group-custom">
+                        <label><i class="fas fa-ruler"></i> Tinggi Badan (cm)</label>
+                        <input type="number" step="0.01" name="tinggi" id="tinggi" placeholder="Contoh: 165">
+                    </div>
+                    <div class="input-group-custom">
+                        <label><i class="fas fa-weight-scale"></i> Berat Badan (kg)</label>
+                        <input type="number" step="0.01" name="berat" id="berat" placeholder="Contoh: 60">
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer-glass">
+                <button type="button" class="btn-secondary" onclick="closeModal()">
+                    <i class="fas fa-times"></i> Batal
+                </button>
+                <button type="submit" class="btn-primary" id="submitBtn">
+                    <i class="fas fa-save"></i> Simpan
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Modal Show -->
+<div id="showModal" class="modal-glass">
+    <div class="modal-content-glass">
+        <div class="modal-header-glass">
+            <h3><i class="fas fa-user-circle"></i> Detail Pasien</h3>
+            <button class="close-modal" onclick="closeShowModal()">&times;</button>
+        </div>
+        <div class="modal-body-glass" id="showContent"></div>
+        <div class="modal-footer-glass">
+            <button class="btn-secondary" onclick="closeShowModal()">
+                <i class="fas fa-times"></i> Tutup
+            </button>
+        </div>
+    </div>
+</div>
+@endsection
+
+@push('scripts')
+<script>
+    // Search filter
+    document.getElementById('searchInput').addEventListener('keyup', function() {
+        let value = this.value.toLowerCase();
+        let rows = document.querySelectorAll('#patientTable tr');
+        rows.forEach(row => {
+            let text = row.textContent.toLowerCase();
+            row.style.display = text.includes(value) ? '' : 'none';
+        });
+    });
+
+    function openModal() {
+        document.getElementById('modalTitle').innerHTML = '<i class="fas fa-user-md"></i> Tambah Pasien';
+        document.getElementById('patientForm').reset();
+        document.getElementById('patientId').value = '';
+        document.getElementById('method').value = 'POST';
+        document.getElementById('patientForm').action = '{{ route("patients.store") }}';
+        document.getElementById('submitBtn').innerHTML = '<i class="fas fa-save"></i> Simpan';
+        document.getElementById('modal').style.display = 'flex';
+    }
+
+    function editPatient(id) {
+        fetch(`/patients/${id}/edit`)
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('modalTitle').innerHTML = '<i class="fas fa-edit"></i> Edit Pasien';
+                document.getElementById('patientId').value = data.id;
+                document.getElementById('nik').value = data.nik;
+                document.getElementById('nama').value = data.nama;
+                document.getElementById('umur').value = data.umur;
+                document.getElementById('jenis_kelamin').value = data.jenis_kelamin;
+                document.getElementById('tinggi').value = data.tinggi;
+                document.getElementById('berat').value = data.berat;
+                document.getElementById('method').value = 'PUT';
+                document.getElementById('patientForm').action = `/patients/${data.id}`;
+                document.getElementById('submitBtn').innerHTML = '<i class="fas fa-save"></i> Update';
+                document.getElementById('modal').style.display = 'flex';
+            });
+    }
+
+    function showPatient(id) {
+        fetch(`/patients/${id}`)
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('showContent').innerHTML = `
+                    <div class="detail-item"><strong><i class="fas fa-id-card"></i> NIK:</strong> <span>${data.nik}</span></div>
+                    <div class="detail-item"><strong><i class="fas fa-user"></i> Nama:</strong> <span>${data.nama}</span></div>
+                    <div class="detail-item"><strong><i class="fas fa-birthday-cake"></i> Umur:</strong> <span>${data.umur} tahun</span></div>
+                    <div class="detail-item"><strong><i class="fas fa-venus-mars"></i> Jenis Kelamin:</strong> <span>${data.jenis_kelamin}</span></div>
+                    <div class="detail-item"><strong><i class="fas fa-ruler"></i> Tinggi:</strong> <span>${data.tinggi ? data.tinggi + ' cm' : '-'}</span></div>
+                    <div class="detail-item"><strong><i class="fas fa-weight-scale"></i> Berat:</strong> <span>${data.berat ? data.berat + ' kg' : '-'}</span></div>
+                    <div class="detail-item"><strong><i class="fas fa-calendar"></i> Dibuat:</strong> <span>${new Date(data.created_at).toLocaleDateString('id-ID')}</span></div>
+                `;
+                document.getElementById('showModal').style.display = 'flex';
+            });
+    }
+
+    function deletePatient(id) {
+        if (confirm('Yakin ingin menghapus pasien ini?')) {
+            const form = document.createElement('form');
+            form.method = 'POST';
+            form.action = `/patients/${id}`;
+            form.innerHTML = '@csrf @method("DELETE")';
+            document.body.appendChild(form);
+            form.submit();
+        }
+    }
+
+    function closeModal() {
+        document.getElementById('modal').style.display = 'none';
+    }
+
+    function closeShowModal() {
+        document.getElementById('showModal').style.display = 'none';
+    }
+
+    window.onclick = function(event) {
+        if (event.target == document.getElementById('modal')) closeModal();
+        if (event.target == document.getElementById('showModal')) closeShowModal();
+    }
+</script>
+@endpush

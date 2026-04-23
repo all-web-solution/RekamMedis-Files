@@ -1,228 +1,510 @@
 @extends('layout.master')
+
+@section('page-title', 'Detail Pasien')
+@section('page-description', 'Informasi lengkap data diri dan riwayat kunjungan pasien')
+
 @section('content')
+<style>
+    .profile-header {
+        background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+        border-radius: 24px;
+        padding: 30px;
+        margin-bottom: 30px;
+        color: white;
+        position: relative;
+        overflow: hidden;
+    }
     
+    .profile-header::before {
+        content: '';
+        position: absolute;
+        top: -50%;
+        right: -50%;
+        width: 200%;
+        height: 200%;
+        background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+        transform: rotate(45deg);
+    }
+    
+    .profile-avatar {
+        width: 100px;
+        height: 100px;
+        background: rgba(255,255,255,0.2);
+        border-radius: 30px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 48px;
+        margin-bottom: 20px;
+        backdrop-filter: blur(10px);
+    }
+    
+    .profile-name {
+        font-size: 28px;
+        font-weight: 700;
+        margin-bottom: 8px;
+    }
+    
+    .profile-nik {
+        font-size: 14px;
+        opacity: 0.9;
+        margin-bottom: 20px;
+    }
+    
+    .info-card {
+        background: var(--white);
+        border-radius: 20px;
+        padding: 24px;
+        margin-bottom: 24px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+    }
+    
+    .info-title {
+        font-size: 18px;
+        font-weight: 600;
+        color: var(--gray-800);
+        margin-bottom: 20px;
+        padding-bottom: 12px;
+        border-bottom: 2px solid var(--primary-bg);
+    }
+    
+    .info-title i {
+        color: var(--primary);
+        margin-right: 10px;
+    }
+    
+    .info-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 20px;
+    }
+    
+    .info-item {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        padding: 12px;
+        background: var(--gray-50);
+        border-radius: 16px;
+    }
+    
+    .info-icon {
+        width: 45px;
+        height: 45px;
+        background: var(--primary-bg);
+        border-radius: 14px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--primary);
+        font-size: 20px;
+    }
+    
+    .info-label {
+        font-size: 12px;
+        color: var(--gray-500);
+        margin-bottom: 4px;
+    }
+    
+    .info-value {
+        font-size: 16px;
+        font-weight: 600;
+        color: var(--gray-800);
+    }
+    
+    .stats-mini {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+        gap: 15px;
+        margin-bottom: 24px;
+    }
+    
+    .stat-mini-card {
+        background: var(--white);
+        border-radius: 16px;
+        padding: 20px;
+        text-align: center;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+    }
+    
+    .stat-mini-number {
+        font-size: 28px;
+        font-weight: 800;
+        color: var(--primary);
+    }
+    
+    .stat-mini-label {
+        font-size: 12px;
+        color: var(--gray-500);
+        margin-top: 5px;
+    }
+    
+    .diagnosis-tag {
+        display: inline-block;
+        background: var(--primary-bg);
+        color: var(--primary);
+        padding: 8px 16px;
+        border-radius: 12px;
+        margin: 5px;
+        font-size: 13px;
+        font-weight: 500;
+    }
+    
+    .visit-card {
+        background: var(--white);
+        border-radius: 16px;
+        padding: 20px;
+        margin-bottom: 16px;
+        border: 1px solid var(--gray-200);
+        transition: all 0.3s ease;
+    }
+    
+    .visit-card:hover {
+        border-color: var(--primary-light);
+        box-shadow: 0 4px 15px rgba(5, 150, 105, 0.1);
+    }
+    
+    .visit-date {
+        display: inline-block;
+        background: var(--primary);
+        color: white;
+        padding: 4px 12px;
+        border-radius: 20px;
+        font-size: 12px;
+        margin-bottom: 12px;
+    }
+    
+    .visit-diagnosis {
+        background: var(--primary-bg);
+        color: var(--primary);
+        padding: 4px 12px;
+        border-radius: 20px;
+        font-size: 12px;
+        display: inline-block;
+    }
+    
+    .btn-back {
+        background: var(--white);
+        color: var(--gray-700);
+        border: 1px solid var(--gray-300);
+        padding: 10px 20px;
+        border-radius: 12px;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        transition: all 0.3s ease;
+    }
+    
+    .btn-back:hover {
+        background: var(--gray-50);
+        border-color: var(--primary);
+        color: var(--primary);
+    }
+    
+    .btn-add-visit {
+        background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+        color: white;
+        padding: 10px 20px;
+        border-radius: 12px;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+    }
+    
+    .btn-add-visit:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(5, 150, 105, 0.3);
+        color: white;
+    }
+</style>
 
 <div class="main-content">
-    <div class="top-bar">
-        <div style="display: flex; align-items: center; gap: 20px;">
-            <a href="{{ route('dashboard') }}" class="btn-back">
-                <i class="fas fa-arrow-left"></i> Kembali
-            </a>
-            <h1 class="page-title">Detail Pasien</h1>
-        </div>
-        <button class="btn-primary" onclick="openVisitModal()">
-            <i class="fas fa-plus"></i> Tambah Kunjungan
-        </button>
+    <!-- Tombol Back -->
+    <div style="margin-bottom: 20px;">
+        <a href="{{ route('patients') }}" class="btn-back">
+            <i class="fas fa-arrow-left"></i> Kembali ke Daftar Pasien
+        </a>
     </div>
-
-    <!-- Profile Card -->
-    <div class="profile-card">
-        <div class="profile-header">
-            <div class="profile-avatar">
-                <i class="fas fa-user-injured"></i>
-            </div>
-            <div class="profile-info">
-                <h2>{{ $patient->nama }}</h2>
-                <div class="nik">NIK: {{ $patient->nik }}</div>
-                <div class="stats-mini">
-                    <div class="stat-mini-item">
-                        <div class="stat-mini-number">{{ $totalVisits }}</div>
-                        <div class="stat-mini-label">Total Kunjungan</div>
+    
+    <!-- Profile Header -->
+    <div class="profile-header">
+        <div class="profile-avatar">
+            <i class="fas fa-user-circle"></i>
+        </div>
+        <div class="profile-name">{{ $patient->nama }}</div>
+        <div class="profile-nik">
+            <i class="fas fa-id-card"></i> NIK: {{ $patient->nik }}
+        </div>
+        <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+            <a href="{{ route('visits') }}?patient_id={{ $patient->id }}" class="btn-add-visit">
+                <i class="fas fa-plus"></i> Tambah Kunjungan
+            </a>
+            <button class="btn-add-visit" onclick="editPatient({{ $patient->id }})" style="background: rgba(255,255,255,0.2);">
+                <i class="fas fa-edit"></i> Edit Data
+            </button>
+        </div>
+    </div>
+    
+    <!-- Stats Mini -->
+    <div class="stats-mini">
+        <div class="stat-mini-card">
+            <div class="stat-mini-number">{{ $totalVisits }}</div>
+            <div class="stat-mini-label">Total Kunjungan</div>
+        </div>
+        <div class="stat-mini-card">
+            <div class="stat-mini-number">{{ $visits->where('tanggal_berobat', '>=', now()->subMonths(12))->count() }}</div>
+            <div class="stat-mini-label">Kunjungan 1 Tahun</div>
+        </div>
+        <div class="stat-mini-card">
+            <div class="stat-mini-number">{{ $visits->where('tanggal_berobat', '>=', now()->subMonths(1))->count() }}</div>
+            <div class="stat-mini-label">Kunjungan 1 Bulan</div>
+        </div>
+        @if($lastVisit)
+        <div class="stat-mini-card">
+            <div class="stat-mini-number">{{ \Carbon\Carbon::parse($lastVisit->tanggal_berobat)->diffInDays(now()) }} hari</div>
+            <div class="stat-mini-label">Hari Terakhir Kunjungan</div>
+        </div>
+        @endif
+    </div>
+    
+    <div class="row">
+        <!-- Kolom Kiri - Data Diri -->
+        <div class="col-lg-4">
+            <div class="info-card">
+                <div class="info-title">
+                    <i class="fas fa-user-circle"></i> Data Diri
+                </div>
+                <div class="info-item">
+                    <div class="info-icon"><i class="fas fa-id-card"></i></div>
+                    <div>
+                        <div class="info-label">NIK</div>
+                        <div class="info-value">{{ $patient->nik }}</div>
                     </div>
-                    <div class="stat-mini-item">
-                        <div class="stat-mini-number">{{ $firstVisit ? date('d/m/Y', strtotime($firstVisit->tanggal_berobat)) : '-' }}</div>
-                        <div class="stat-mini-label">Kunjungan Pertama</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-icon"><i class="fas fa-user"></i></div>
+                    <div>
+                        <div class="info-label">Nama Lengkap</div>
+                        <div class="info-value">{{ $patient->nama }}</div>
                     </div>
-                    <div class="stat-mini-item">
-                        <div class="stat-mini-number">{{ $lastVisit ? date('d/m/Y', strtotime($lastVisit->tanggal_berobat)) : '-' }}</div>
-                        <div class="stat-mini-label">Kunjungan Terakhir</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-icon"><i class="fas fa-birthday-cake"></i></div>
+                    <div>
+                        <div class="info-label">Umur</div>
+                        <div class="info-value">{{ $patient->umur }} tahun</div>
+                    </div>
+                </div>
+                <div class="info-item">
+                    <div class="info-icon"><i class="fas fa-venus-mars"></i></div>
+                    <div>
+                        <div class="info-label">Jenis Kelamin</div>
+                        <div class="info-value">
+                            @if($patient->jenis_kelamin == 'Laki-laki')
+                                <i class="fas fa-mars"></i> Laki-laki
+                            @else
+                                <i class="fas fa-venus"></i> Perempuan
+                            @endif
+                        </div>
+                    </div>
+                </div>
+                <div class="info-item">
+                    <div class="info-icon"><i class="fas fa-ruler"></i></div>
+                    <div>
+                        <div class="info-label">Tinggi Badan</div>
+                        <div class="info-value">{{ $patient->tinggi ?? '-' }} cm</div>
+                    </div>
+                </div>
+                <div class="info-item">
+                    <div class="info-icon"><i class="fas fa-weight-scale"></i></div>
+                    <div>
+                        <div class="info-label">Berat Badan</div>
+                        <div class="info-value">{{ $patient->berat ?? '-' }} kg</div>
+                    </div>
+                </div>
+                <div class="info-item">
+                    <div class="info-icon"><i class="fas fa-calendar"></i></div>
+                    <div>
+                        <div class="info-label">Tanggal Registrasi</div>
+                        <div class="info-value">{{ \Carbon\Carbon::parse($patient->created_at)->format('d F Y') }}</div>
                     </div>
                 </div>
             </div>
+            
+            <!-- Diagnosa Paling Sering -->
+            @if($commonDiagnosis->count() > 0)
+            <div class="info-card">
+                <div class="info-title">
+                    <i class="fas fa-chart-pie"></i> Diagnosa Paling Sering
+                </div>
+                <div style="padding: 10px 0;">
+                    @foreach($commonDiagnosis as $diagnosis => $count)
+                        <div class="diagnosis-tag">
+                            {{ $diagnosis ?: 'Tidak terdiagnosa' }} ({{ $count }}x)
+                        </div>
+                    @endforeach
+                </div>
+            </div>
+            @endif
+            
+            <!-- Statistik Kunjungan per Tahun -->
+            @if($visitsPerYear->count() > 0)
+            <div class="info-card">
+                <div class="info-title">
+                    <i class="fas fa-chart-line"></i> Statistik per Tahun
+                </div>
+                @foreach($visitsPerYear as $year => $count)
+                <div style="margin-bottom: 15px;">
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
+                        <span style="font-size: 13px; color: var(--gray-600);">Tahun {{ $year }}</span>
+                        <span style="font-weight: 600; color: var(--primary);">{{ $count }} kunjungan</span>
+                    </div>
+                    <div style="background: var(--gray-200); height: 8px; border-radius: 10px; overflow: hidden;">
+                        <div style="background: linear-gradient(90deg, var(--primary) 0%, var(--primary-light) 100%); width: {{ min(100, ($count / max($visitsPerYear->max(), 1)) * 100) }}%; height: 100%; border-radius: 10px;"></div>
+                    </div>
+                </div>
+                @endforeach
+            </div>
+            @endif
         </div>
         
-        <div class="info-grid">
-            <div class="info-item">
-                <div class="info-icon"><i class="fas fa-calendar-alt"></i></div>
-                <div>
-                    <div class="info-label">Umur</div>
-                    <div class="info-value">{{ $patient->umur }} tahun</div>
+        <!-- Kolom Kanan - Riwayat Kunjungan -->
+        <div class="col-lg-8">
+            <div class="info-card">
+                <div class="info-title">
+                    <i class="fas fa-notes-medical"></i> Riwayat Kunjungan
+                    <span style="float: right; font-size: 13px; font-weight: normal;">
+                        Total: {{ $totalVisits }} kunjungan
+                    </span>
                 </div>
-            </div>
-            <div class="info-item">
-                <div class="info-icon"><i class="fas fa-venus-mars"></i></div>
-                <div>
-                    <div class="info-label">Jenis Kelamin</div>
-                    <div class="info-value">{{ $patient->jenis_kelamin }}</div>
-                </div>
-            </div>
-            <div class="info-item">
-                <div class="info-icon"><i class="fas fa-ruler"></i></div>
-                <div>
-                    <div class="info-label">Tinggi Badan</div>
-                    <div class="info-value">{{ $patient->tinggi ?? '-' }} cm</div>
-                </div>
-            </div>
-            <div class="info-item">
-                <div class="info-icon"><i class="fas fa-weight-scale"></i></div>
-                <div>
-                    <div class="info-label">Berat Badan</div>
-                    <div class="info-value">{{ $patient->berat ?? '-' }} kg</div>
-                </div>
-            </div>
-            <div class="info-item">
-                <div class="info-icon"><i class="fas fa-id-card"></i></div>
-                <div>
-                    <div class="info-label">NIK</div>
-                    <div class="info-value">{{ $patient->nik }}</div>
-                </div>
-            </div>
-            <div class="info-item">
-                <div class="info-icon"><i class="fas fa-calendar-plus"></i></div>
-                <div>
-                    <div class="info-label">Terdaftar Sejak</div>
-                    <div class="info-value">{{ $patient->created_at->format('d F Y') }}</div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Statistik Kunjungan per Tahun -->
-    @if($visitsPerYear->count() > 0)
-    <div class="card-modern">
-        <div class="card-header-modern">
-            <h3><i class="fas fa-chart-bar"></i> Statistik Kunjungan per Tahun</h3>
-        </div>
-        <canvas id="yearlyChart" height="150"></canvas>
-    </div>
-    @endif
-
-    <!-- Diagnostik Terbanyak -->
-    @if($commonDiagnosis->count() > 0 && $commonDiagnosis->first() > 0)
-    <div class="card-modern">
-        <div class="card-header-modern">
-            <h3><i class="fas fa-chart-pie"></i> Diagnostik Terbanyak</h3>
-        </div>
-        <div class="diagnosis-list">
-            @foreach($commonDiagnosis as $diagnosis => $count)
-                @if($diagnosis)
-                <div class="diagnosis-tag">
-                    <span class="diagnosis-name">{{ $diagnosis }}</span>
-                    <span class="diagnosis-count">{{ $count }}x</span>
-                </div>
-                @endif
-            @endforeach
-        </div>
-    </div>
-    @endif
-
-    <!-- Riwayat Kunjungan -->
-    <div class="card-modern">
-        <div class="card-header-modern">
-            <h3><i class="fas fa-history"></i> Riwayat Kunjungan</h3>
-        </div>
-        <div class="table-wrapper">
-            <table class="table-modern">
-                <thead>
-                    <tr>
-                        <th>No</th>
-                        <th>Tanggal Berobat</th>
-                        <th>Keluhan</th>
-                        <th>Diagnostik</th>
-                        <th>Terapi</th>
-                        <th>Detail</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @forelse($visits as $index => $visit)
-                    <tr>
-                        <td>{{ $index + 1 }}</td>
-                        <td>
-                            <strong>{{ \Carbon\Carbon::parse($visit->tanggal_berobat)->format('d/m/Y') }}</strong>
-                            <br>
-                            <small class="badge badge-info">{{ \Carbon\Carbon::parse($visit->tanggal_berobat)->diffForHumans() }}</small>
-                         </td>
-                        <td>{{ $visit->keluhan ?? '-' }}</td>
-                        <td>
-                            {{ $visit->diagnostik ?? '-' }}
-                            @if($visit->pemeriksaan_lab)
-                                <br><small class="badge badge-info">Lab: {{ $visit->pemeriksaan_lab }}</small>
-                            @endif
-                         </td>
-                        <td>{{ $visit->terapi ?? '-' }}</td>
-                        <td>
-                            <button class="btn-primary" style="padding: 6px 12px; font-size: 0.75rem;" onclick="showVisitDetail({{ $visit->id }})">
+                
+                @if($visits->count() > 0)
+                    @foreach($visits as $visit)
+                    <div class="visit-card">
+                        <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 10px; margin-bottom: 15px;">
+                            <div>
+                                <span class="visit-date">
+                                    <i class="fas fa-calendar-day"></i> {{ \Carbon\Carbon::parse($visit->tanggal_berobat)->format('d F Y') }}
+                                </span>
+                                @if($visit->diagnostik)
+                                <span class="visit-diagnosis" style="margin-left: 8px;">
+                                    <i class="fas fa-microscope"></i> {{ $visit->diagnostik }}
+                                </span>
+                                @endif
+                            </div>
+                            <button class="btn-icon" onclick="showVisitDetail({{ $visit->id }})" style="padding: 6px 12px; background: var(--primary);">
                                 <i class="fas fa-eye"></i> Detail
                             </button>
-                         </td>
-                     </tr>
-                    @empty
-                     <tr>
-                        <td colspan="6" style="text-align: center; padding: 60px;">
-                            <i class="fas fa-notes-medical" style="font-size: 48px; color: #cbd5e1; margin-bottom: 15px; display: block;"></i>
-                            Belum ada riwayat kunjungan
-                            <br>
-                            <button class="btn-primary" style="margin-top: 15px;" onclick="openVisitModal()">
-                                <i class="fas fa-plus"></i> Tambah Kunjungan Pertama
-                            </button>
-                        </td>
-                    </tr>
-                    @endforelse
-                </tbody>
-            </table>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div style="margin-bottom: 12px;">
+                                    <div style="font-size: 11px; color: var(--gray-500); margin-bottom: 4px;">
+                                        <i class="fas fa-stethoscope"></i> Keluhan
+                                    </div>
+                                    <div style="font-size: 14px; color: var(--gray-700);">
+                                        {{ $visit->keluhan ?: '-' }}
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div style="margin-bottom: 12px;">
+                                    <div style="font-size: 11px; color: var(--gray-500); margin-bottom: 4px;">
+                                        <i class="fas fa-prescription"></i> Terapi
+                                    </div>
+                                    <div style="font-size: 14px; color: var(--gray-700);">
+                                        {{ $visit->terapi ? Str::limit($visit->terapi, 100) : '-' }}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        @if($visit->pemeriksaan_fisik || $visit->pemeriksaan_lab)
+                        <div style="background: var(--gray-50); padding: 12px; border-radius: 12px; margin-top: 10px;">
+                            <div style="font-size: 11px; color: var(--gray-500); margin-bottom: 8px;">
+                                <i class="fas fa-heartbeat"></i> Pemeriksaan
+                            </div>
+                            <div class="row">
+                                @if($visit->pemeriksaan_fisik)
+                                <div class="col-md-6">
+                                    <div style="font-size: 12px;"><strong>Fisik:</strong> {{ $visit->pemeriksaan_fisik }}</div>
+                                </div>
+                                @endif
+                                @if($visit->pemeriksaan_lab)
+                                <div class="col-md-6">
+                                    <div style="font-size: 12px;"><strong>Lab:</strong> {{ $visit->pemeriksaan_lab }}</div>
+                                </div>
+                                @endif
+                            </div>
+                        </div>
+                        @endif
+                    </div>
+                    @endforeach
+                @else
+                    <div style="text-align: center; padding: 60px;">
+                        <i class="fas fa-inbox" style="font-size: 48px; color: var(--gray-300); margin-bottom: 15px; display: block;"></i>
+                        <p style="color: var(--gray-400);">Belum ada riwayat kunjungan</p>
+                        <a href="{{ route('visits') }}?patient_id={{ $patient->id }}" class="btn-primary" style="margin-top: 15px; display: inline-block;">
+                            <i class="fas fa-plus"></i> Tambah Kunjungan Pertama
+                        </a>
+                    </div>
+                @endif
+            </div>
         </div>
     </div>
 </div>
 
-<!-- Modal Tambah Kunjungan -->
-<div id="visitModal" class="modal-glass">
+<!-- Modal Edit Pasien -->
+<div id="editModal" class="modal-glass">
     <div class="modal-content-glass">
         <div class="modal-header-glass">
-            <h3><i class="fas fa-stethoscope"></i> Tambah Kunjungan Baru</h3>
-            <button class="close-modal" onclick="closeVisitModal()">&times;</button>
+            <h3><i class="fas fa-edit"></i> Edit Pasien</h3>
+            <button class="close-modal" onclick="closeEditModal()">&times;</button>
         </div>
-        <form action="{{ route('visits.store') }}" method="POST">
+        <form id="editForm" method="POST">
             @csrf
-            <input type="hidden" name="patient_id" value="{{ $patient->id }}">
+            @method('PUT')
             <div class="modal-body-glass">
                 <div class="form-grid">
                     <div class="input-group-custom">
-                        <label>Tanggal Berobat *</label>
-                        <input type="date" name="tanggal_berobat" value="{{ date('Y-m-d') }}" required>
+                        <label><i class="fas fa-id-card"></i> NIK *</label>
+                        <input type="text" name="nik" id="edit_nik" required>
                     </div>
                     <div class="input-group-custom">
-                        <label>Keluhan</label>
-                        <input type="text" name="keluhan" placeholder="Keluhan pasien...">
+                        <label><i class="fas fa-user"></i> Nama Lengkap *</label>
+                        <input type="text" name="nama" id="edit_nama" required>
                     </div>
                     <div class="input-group-custom">
-                        <label>Anamesis</label>
-                        <input type="text" name="anamesis" placeholder="Riwayat penyakit...">
+                        <label><i class="fas fa-birthday-cake"></i> Umur *</label>
+                        <input type="number" name="umur" id="edit_umur" required>
                     </div>
                     <div class="input-group-custom">
-                        <label>Pemeriksaan Fisik</label>
-                        <input type="text" name="pemeriksaan_fisik" placeholder="Hasil pemeriksaan fisik...">
+                        <label><i class="fas fa-venus-mars"></i> Jenis Kelamin *</label>
+                        <select name="jenis_kelamin" id="edit_jenis_kelamin" required>
+                            <option value="Laki-laki">Laki-laki</option>
+                            <option value="Perempuan">Perempuan</option>
+                        </select>
                     </div>
                     <div class="input-group-custom">
-                        <label>Pemeriksaan Lab</label>
-                        <input type="text" name="pemeriksaan_lab" placeholder="Hasil laboratorium...">
+                        <label><i class="fas fa-ruler"></i> Tinggi Badan (cm)</label>
+                        <input type="number" step="0.01" name="tinggi" id="edit_tinggi">
                     </div>
                     <div class="input-group-custom">
-                        <label>Diagnostik</label>
-                        <input type="text" name="diagnostik" placeholder="Diagnosis...">
-                    </div>
-                    <div class="input-group-custom">
-                        <label>Terapi</label>
-                        <input type="text" name="terapi" placeholder="Terapi/obat...">
-                    </div>
-                    <div class="input-group-custom">
-                        <label>Riwayat Alergi</label>
-                        <input type="text" name="riwayat_alergi" placeholder="Alergi pasien...">
+                        <label><i class="fas fa-weight-scale"></i> Berat Badan (kg)</label>
+                        <input type="number" step="0.01" name="berat" id="edit_berat">
                     </div>
                 </div>
             </div>
             <div class="modal-footer-glass">
-                <button type="button" class="btn-primary" style="background:#f1f5f9; color:#475569;" onclick="closeVisitModal()">Batal</button>
-                <button type="submit" class="btn-primary">Simpan Kunjungan</button>
+                <button type="button" class="btn-secondary" onclick="closeEditModal()">
+                    <i class="fas fa-times"></i> Batal
+                </button>
+                <button type="submit" class="btn-primary">
+                    <i class="fas fa-save"></i> Update
+                </button>
             </div>
         </form>
     </div>
@@ -230,91 +512,58 @@
 
 <!-- Modal Detail Kunjungan -->
 <div id="visitDetailModal" class="modal-glass">
-    <div class="modal-content-glass">
+    <div class="modal-content-glass" style="max-width: 600px;">
         <div class="modal-header-glass">
             <h3><i class="fas fa-file-medical"></i> Detail Kunjungan</h3>
             <button class="close-modal" onclick="closeVisitDetailModal()">&times;</button>
         </div>
-        <div class="modal-body-glass" id="visitDetailContent">
-            <!-- Content will be loaded dynamically -->
+        <div class="modal-body-glass" id="visitDetailContent"></div>
+        <div class="modal-footer-glass">
+            <button class="btn-secondary" onclick="closeVisitDetailModal()">
+                <i class="fas fa-times"></i> Tutup
+            </button>
         </div>
     </div>
 </div>
+@endsection
 
+@push('scripts')
 <script>
-    // Chart untuk kunjungan per tahun
-    @if($visitsPerYear->count() > 0)
-    const yearlyLabels = @json($visitsPerYear->keys());
-    const yearlyData = @json($visitsPerYear->values());
-    
-    new Chart(document.getElementById('yearlyChart').getContext('2d'), {
-        type: 'bar',
-        data: {
-            labels: yearlyLabels,
-            datasets: [{
-                label: 'Jumlah Kunjungan',
-                data: yearlyData,
-                backgroundColor: 'rgba(45, 156, 90, 0.3)',
-                borderColor: '#2d9c5a',
-                borderWidth: 2,
-                borderRadius: 8
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: true,
-            scales: {
-                y: {
-                    beginAtZero: true,
-                    ticks: { stepSize: 1 }
-                }
-            }
-        }
-    });
-    @endif
-
-    // Modal functions
-    function openVisitModal() {
-        document.getElementById('visitModal').style.display = 'flex';
-    }
-    
-    function closeVisitModal() {
-        document.getElementById('visitModal').style.display = 'none';
-    }
-    
-    function showVisitDetail(visitId) {
-        fetch(`/visits/${visitId}`)
+    function editPatient(id) {
+        fetch(`/patients/${id}/edit`)
             .then(response => response.json())
             .then(data => {
-                const content = `
-                    <div style="display: grid; gap: 20px;">
-                        <div style="background: #f8fafc; padding: 15px; border-radius: 16px;">
-                            <h4 style="color: #1b5e3a; margin-bottom: 10px;"><i class="fas fa-calendar"></i> Informasi Kunjungan</h4>
-                            <p><strong>Tanggal Berobat:</strong> ${new Date(data.tanggal_berobat).toLocaleDateString('id-ID')}</p>
-                            <p><strong>Keluhan:</strong> ${data.keluhan || '-'}</p>
-                        </div>
-                        
-                        <div style="background: #f8fafc; padding: 15px; border-radius: 16px;">
-                            <h4 style="color: #1b5e3a; margin-bottom: 10px;"><i class="fas fa-stethoscope"></i> Pemeriksaan</h4>
-                            <p><strong>Anamesis:</strong> ${data.anamesis || '-'}</p>
-                            <p><strong>Pemeriksaan Fisik:</strong> ${data.pemeriksaan_fisik || '-'}</p>
-                            <p><strong>Pemeriksaan Lab:</strong> ${data.pemeriksaan_lab || '-'}</p>
-                        </div>
-                        
-                        <div style="background: #f8fafc; padding: 15px; border-radius: 16px;">
-                            <h4 style="color: #1b5e3a; margin-bottom: 10px;"><i class="fas fa-diagnoses"></i> Diagnosis & Terapi</h4>
-                            <p><strong>Diagnostik:</strong> ${data.diagnostik || '-'}</p>
-                            <p><strong>Terapi:</strong> ${data.terapi || '-'}</p>
-                            <p><strong>Riwayat Alergi:</strong> ${data.riwayat_alergi || '-'}</p>
-                        </div>
-                    </div>
+                document.getElementById('edit_nik').value = data.nik;
+                document.getElementById('edit_nama').value = data.nama;
+                document.getElementById('edit_umur').value = data.umur;
+                document.getElementById('edit_jenis_kelamin').value = data.jenis_kelamin;
+                document.getElementById('edit_tinggi').value = data.tinggi;
+                document.getElementById('edit_berat').value = data.berat;
+                document.getElementById('editForm').action = `/patients/${data.id}`;
+                document.getElementById('editModal').style.display = 'flex';
+            });
+    }
+    
+    function closeEditModal() {
+        document.getElementById('editModal').style.display = 'none';
+    }
+    
+    function showVisitDetail(id) {
+        fetch(`/visits/${id}`)
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('visitDetailContent').innerHTML = `
+                    <div class="detail-item"><strong><i class="fas fa-calendar"></i> Tanggal:</strong> <span>${new Date(data.tanggal_berobat).toLocaleDateString('id-ID', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</span></div>
+                    <div class="detail-item"><strong><i class="fas fa-user"></i> Pasien:</strong> <span>${data.patient?.nama || '-'}</span></div>
+                    <div class="detail-item"><strong><i class="fas fa-stethoscope"></i> Keluhan:</strong> <span>${data.keluhan || '-'}</span></div>
+                    <div class="detail-item"><strong><i class="fas fa-notes-medical"></i> Anamesis:</strong> <span>${data.anamesis || '-'}</span></div>
+                    <div class="detail-item"><strong><i class="fas fa-heartbeat"></i> Pemeriksaan Fisik:</strong> <span>${data.pemeriksaan_fisik || '-'}</span></div>
+                    <div class="detail-item"><strong><i class="fas fa-flask"></i> Pemeriksaan Lab:</strong> <span>${data.pemeriksaan_lab || '-'}</span></div>
+                    <div class="detail-item"><strong><i class="fas fa-microscope"></i> Diagnostik:</strong> <span>${data.diagnostik || '-'}</span></div>
+                    <div class="detail-item"><strong><i class="fas fa-prescription"></i> Terapi:</strong> <span>${data.terapi || '-'}</span></div>
+                    <div class="detail-item"><strong><i class="fas fa-allergies"></i> Riwayat Alergi:</strong> <span>${data.riwayat_alergi || '-'}</span></div>
                 `;
-                document.getElementById('visitDetailContent').innerHTML = content;
                 document.getElementById('visitDetailModal').style.display = 'flex';
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                alert('Gagal memuat detail kunjungan');
             });
     }
     
@@ -322,12 +571,9 @@
         document.getElementById('visitDetailModal').style.display = 'none';
     }
     
-    // Close modal when clicking outside
-    window.onclick = function(e) {
-        if (e.target.classList.contains('modal-glass')) {
-            e.target.style.display = 'none';
-        }
+    window.onclick = function(event) {
+        if (event.target == document.getElementById('editModal')) closeEditModal();
+        if (event.target == document.getElementById('visitDetailModal')) closeVisitDetailModal();
     }
 </script>
-
-@endsection
+@endpush

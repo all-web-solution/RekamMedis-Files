@@ -1,27 +1,29 @@
-<div class="sidebar">
-    <div class="sidebar-header">
-        <div class="logo-icon">
-            <i class="fas fa-hospital-user"></i>
+  <div class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <div class="logo-icon">
+                <i class="fas fa-hospital-user"></i>
+            </div>
+            <h3>Klinik Sehat</h3>
+            <p>Medical Management System</p>
         </div>
-        <h2>EmeraldMed</h2>
-        <p>Medical Records System</p>
+        <div class="sidebar-menu">
+            <div class="menu-title">Main Menu</div>
+            <a href="{{ route('dashboard') }}" class="menu-item {{ request()->routeIs('dashboard') ? 'active' : '' }}">
+                <i class="fas fa-chart-line"></i>
+                <span>Dashboard</span>
+            </a>
+            <a href="{{ route('patients') }}" class="menu-item {{ request()->routeIs('patients') ? 'active' : '' }}">
+                <i class="fas fa-users"></i>
+                <span>Data Pasien</span>
+            </a>
+            <a href="{{ route('visits') }}" class="menu-item {{ request()->routeIs('visits') ? 'active' : '' }}">
+                <i class="fas fa-notes-medical"></i>
+                <span>Data Kunjungan</span>
+            </a>
+            
+            <div class="menu-item">
+                <i class="fas fa-sign-out-alt"></i>
+                <span>Logout</span>
+            </div>
+        </div>
     </div>
-    <div class="sidebar-menu">
-        <div class="menu-item active" data-page="dashboard">
-            <i class="fas fa-tachometer-alt"></i>
-            <span>Dashboard</span>
-        </div>
-        <div class="menu-item" data-page="patient">
-            <i class="fas fa-users"></i>
-            <span>Data Pasien</span>
-        </div>
-       <a href="{{ route('visits.index') }}" class="menu-item" style="text-decoration: none;">
-        <i class="fas fa-notes-medical"></i>
-        <span>Kunjungan</span>
-    </a>
-        <div class="menu-item" data-page="history">
-            <i class="fas fa-archive"></i>
-            <span>Riwayat</span>
-        </div>
-    </div>
-</div>
