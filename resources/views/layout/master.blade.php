@@ -728,7 +728,8 @@
             background: var(--primary);
         }
     </style>
-    @stack('styles')
+    <link rel="stylesheet" href="{{ asset('css/native-ui-fixes.css') }}">
+@stack('styles')
 </head>
 <body>
     <!-- Sidebar -->
