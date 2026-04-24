@@ -3,7 +3,7 @@
         <div class="logo-icon">
             <i class="fas fa-hospital-user"></i>
         </div>
-        <h3>Klinik Sehat</h3>
+        <h3>Apotek Singkut Farma</h3>
         <p>Medical Management System</p>
     </div>
 

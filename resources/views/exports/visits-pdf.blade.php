@@ -107,7 +107,7 @@
 </head>
 <body>
     <div class="header">
-        <div class="brand">Klinik Sehat</div>
+        <div class="brand">Apotek Singkut Farma</div>
         <div class="subtitle">Laporan Data Kunjungan Pasien</div>
     </div>
 
@@ -186,7 +186,7 @@
     @endif
 
     <div class="footer">
-        Dokumen ini dibuat otomatis oleh Sistem Manajemen Klinik Sehat.
+        Dokumen ini dibuat otomatis oleh Sistem Manajemen Apotek Singkut Farma.
     </div>
 </body>
 </html>
