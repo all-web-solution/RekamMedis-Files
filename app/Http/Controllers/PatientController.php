@@ -7,6 +7,7 @@ use App\Models\Visit;
 use Carbon\Carbon;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use Illuminate\View\View;
 
@@ -175,24 +176,22 @@ class PatientController extends Controller
     public function destroy(int $id): RedirectResponse
     {
         try {
-            $patient = Patient::findOrFail($id);
+            DB::transaction(function () use ($id) {
+                $patient = Patient::findOrFail($id);
 
-            if ($patient->visits()->exists()) {
-                return redirect()
-                    ->route('patients')
-                    ->with('error', 'Tidak bisa menghapus pasien yang memiliki riwayat kunjungan!');
-            }
+                Visit::where('patient_id', $patient->id)->delete();
 
-            $patient->delete();
+                $patient->delete();
+            });
 
             return redirect()
                 ->route('patients')
-                ->with('success', 'Pasien berhasil dihapus!');
+                ->with('success', 'Pasien dan seluruh riwayat kunjungannya berhasil dihapus!');
         } catch (\Throwable $e) {
             report($e);
 
             return redirect()
-                ->route('patients')
+                ->back()
                 ->with('error', 'Gagal menghapus pasien!');
         }
     }

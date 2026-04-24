@@ -27,6 +27,13 @@
             <span>Data Kunjungan</span>
         </a>
 
+        <div class="menu-title mt-3">Akun</div>
+
+        <a href="{{ route('profile.edit') }}" class="menu-item {{ request()->routeIs('profile.*') ? 'active' : '' }}">
+            <i class="fas fa-user-cog"></i>
+            <span>Edit Profile</span>
+        </a>
+
         <form method="POST" action="{{ route('logout') }}" class="logout-form">
             @csrf
             <button type="submit" class="menu-item menu-button logout-menu-item">

@@ -6,7 +6,6 @@ use App\Http\Requests\VisitFilterRequest;
 use App\Models\Patient;
 use App\Models\Visit;
 use Barryvdh\DomPDF\Facade\Pdf;
-use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
@@ -109,7 +108,34 @@ class VisitController extends Controller
         return $pdf->download($fileName);
     }
 
-    private function filteredVisitQuery(array $filters): Builder
+    public function destroy(Request $request, int $id): RedirectResponse
+    {
+        try {
+            $visit = Visit::findOrFail($id);
+            $patientId = $visit->patient_id;
+
+            $visit->delete();
+
+            if ($request->input('redirect_to') === 'patient') {
+                return redirect()
+                    ->route('patients.show', $patientId)
+                    ->with('success', 'Kunjungan berhasil dihapus!');
+            }
+
+            return redirect()
+                ->back()
+                ->with('success', 'Kunjungan berhasil dihapus!');
+        } catch (\Throwable $e) {
+            report($e);
+
+            return redirect()
+                ->back()
+                ->with('error', 'Gagal menghapus kunjungan!');
+        }
+    }
+
+
+    private function filteredVisitQuery(array $filters)
     {
         return Visit::query()
             ->with('patient:id,nama,nik')

@@ -3,6 +3,7 @@
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\PatientController;
+use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\VisitController;
 use Illuminate\Support\Facades\Route;
 
@@ -20,6 +21,10 @@ Route::post('/logout', [LoginController::class, 'destroy'])
 Route::middleware('auth')->group(function () {
     Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
 
+    Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
+    Route::put('/profile', [ProfileController::class, 'update'])->name('profile.update');
+    Route::put('/profile/password', [ProfileController::class, 'updatePassword'])->name('profile.password.update');
+
     Route::get('/patients', [PatientController::class, 'index'])->name('patients');
     Route::post('/patients', [PatientController::class, 'store'])->name('patients.store');
 
@@ -36,4 +41,5 @@ Route::middleware('auth')->group(function () {
     Route::get('/visits/export/pdf', [VisitController::class, 'exportPdf'])->name('visits.export.pdf');
     Route::get('/visits/filter', [VisitController::class, 'filter'])->name('visits.filter');
     Route::get('/visits/{id}', [VisitController::class, 'show'])->name('visits.show');
+    Route::delete('/visits/{id}', [VisitController::class, 'destroy'])->name('visits.destroy');
 });
