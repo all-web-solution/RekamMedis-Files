@@ -24,6 +24,27 @@
         </div>
     @endif
 
+    @if ($errors->any())
+        <div
+            style="background-color: #fef2f2; border: 1px solid #fecaca; border-left: 6px solid #ef4444; border-radius: 10px; padding: 16px 20px; margin-bottom: 24px; box-shadow: 0 4px 6px -1px rgba(239, 68, 68, 0.1), 0 2px 4px -2px rgba(239, 68, 68, 0.1); transition: all 0.3s ease;">
+            <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 12px;">
+                <div
+                    style="background-color: #fee2e2; width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                    <i class="fas fa-exclamation-triangle" style="color: #dc2626; font-size: 14px;"></i>
+                </div>
+                <strong style="color: #991b1b; font-size: 15px; font-weight: 600; letter-spacing: -0.01em;">
+                    Gagal menyimpan data! Terdapat kesalahan pada input:
+                </strong>
+            </div>
+            <ul
+                style="margin: 0 0 0 46px; padding: 0; color: #b91c1c; font-size: 14px; line-height: 1.6; list-style-type: disc;">
+                @foreach ($errors->all() as $error)
+                    <li style="margin-bottom: 6px; padding-left: 4px;">{{ $error }}</li>
+                @endforeach
+            </ul>
+        </div>
+    @endif
+
     <div class="filter-section">
         <h4><i class="fas fa-search"></i> Cari Pasien</h4>
         <div class="filter-grid">
@@ -117,41 +138,66 @@
                 <h3 id="modalTitle"><i class="fas fa-user-md"></i> Tambah Pasien</h3>
                 <button class="close-modal" onclick="closeModal()">&times;</button>
             </div>
-            <form id="patientForm" method="POST">
+            <form id="patientForm" method="POST" action="{{ route('patients.store') }}">
                 @csrf
-                <input type="hidden" name="_method" id="method" value="POST">
-                <input type="hidden" name="id" id="patientId">
+                <input type="hidden" name="_method" id="method" value="{{ old('_method', 'POST') }}">
+                <input type="hidden" name="id" id="patientId" value="{{ old('id') }}">
+
                 <div class="modal-body-glass">
                     <div class="form-grid">
                         <div class="input-group-custom">
                             <label><i class="fas fa-id-card"></i> NIK *</label>
-                            <input type="text" name="nik" id="nik" required placeholder="Masukkan NIK">
+                            <input type="text" name="nik" id="nik" required
+                                placeholder="Masukkan 16 Digit NIK" maxlength="16" minlength="16" pattern="[0-9]{16}"
+                                title="NIK harus berupa 16 digit angka"
+                                oninput="this.value = this.value.replace(/[^0-9]/g, '')" value="{{ old('nik') }}">
+                            @error('nik')
+                                <small style="color: #dc2626; margin-top: 5px; display: block;">{{ $message }}</small>
+                            @enderror
                         </div>
                         <div class="input-group-custom">
                             <label><i class="fas fa-user"></i> Nama Lengkap *</label>
                             <input type="text" name="nama" id="nama" required
-                                placeholder="Masukkan nama lengkap">
+                                placeholder="Masukkan nama lengkap" value="{{ old('nama') }}">
+                            @error('nama')
+                                <small style="color: #dc2626; margin-top: 5px; display: block;">{{ $message }}</small>
+                            @enderror
                         </div>
                         <div class="input-group-custom">
                             <label><i class="fas fa-birthday-cake"></i> Umur *</label>
-                            <input type="number" name="umur" id="umur" required placeholder="Usia dalam tahun">
+                            <input type="number" name="umur" id="umur" required placeholder="Usia dalam tahun"
+                                value="{{ old('umur') }}">
+                            @error('umur')
+                                <small style="color: #dc2626; margin-top: 5px; display: block;">{{ $message }}</small>
+                            @enderror
                         </div>
                         <div class="input-group-custom">
                             <label><i class="fas fa-venus-mars"></i> Jenis Kelamin *</label>
                             <select name="jenis_kelamin" id="jenis_kelamin" required>
-                                <option value="Laki-laki">Laki-laki</option>
-                                <option value="Perempuan">Perempuan</option>
+                                <option value="Laki-laki" {{ old('jenis_kelamin') == 'Laki-laki' ? 'selected' : '' }}>
+                                    Laki-laki</option>
+                                <option value="Perempuan" {{ old('jenis_kelamin') == 'Perempuan' ? 'selected' : '' }}>
+                                    Perempuan</option>
                             </select>
+                            @error('jenis_kelamin')
+                                <small style="color: #dc2626; margin-top: 5px; display: block;">{{ $message }}</small>
+                            @enderror
                         </div>
                         <div class="input-group-custom">
                             <label><i class="fas fa-ruler"></i> Tinggi Badan (cm)</label>
                             <input type="number" step="0.01" name="tinggi" id="tinggi"
-                                placeholder="Contoh: 165">
+                                placeholder="Contoh: 165" value="{{ old('tinggi') }}">
+                            @error('tinggi')
+                                <small style="color: #dc2626; margin-top: 5px; display: block;">{{ $message }}</small>
+                            @enderror
                         </div>
                         <div class="input-group-custom">
                             <label><i class="fas fa-weight-scale"></i> Berat Badan (kg)</label>
-                            <input type="number" step="0.01" name="berat" id="berat"
-                                placeholder="Contoh: 60">
+                            <input type="number" step="0.01" name="berat" id="berat" placeholder="Contoh: 60"
+                                value="{{ old('berat') }}">
+                            @error('berat')
+                                <small style="color: #dc2626; margin-top: 5px; display: block;">{{ $message }}</small>
+                            @enderror
                         </div>
                     </div>
                 </div>
@@ -186,6 +232,21 @@
 
 @push('scripts')
     <script>
+        @if ($errors->any())
+            document.addEventListener('DOMContentLoaded', function() {
+                // Tampilkan modal otomatis
+                document.getElementById('modal').style.display = 'flex';
+
+                // Jika error terjadi saat sedang mode Edit (ada old('id'))
+                let oldId = "{{ old('id') }}";
+                if (oldId) {
+                    document.getElementById('modalTitle').innerHTML = '<i class="fas fa-edit"></i> Edit Pasien';
+                    document.getElementById('method').value = 'PUT';
+                    document.getElementById('patientForm').action = `/patients/${oldId}`;
+                    document.getElementById('submitBtn').innerHTML = '<i class="fas fa-save"></i> Update';
+                }
+            });
+        @endif
         // Search filter
         document.getElementById('searchInput').addEventListener('keyup', function() {
             let value = this.value.toLowerCase();
@@ -241,7 +302,6 @@
                     document.getElementById('showModal').style.display = 'flex';
                 });
         }
-        
 
         function closeModal() {
             document.getElementById('modal').style.display = 'none';

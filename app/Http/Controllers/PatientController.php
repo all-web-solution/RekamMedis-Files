@@ -23,7 +23,7 @@ class PatientController extends Controller
     public function store(Request $request): RedirectResponse
     {
         $validated = $request->validate([
-            'nik' => ['required', 'string', 'max:20', 'unique:patients,nik'],
+            'nik' => ['required', 'numeric', 'digits:16', 'unique:patients,nik'],
             'nama' => ['required', 'string', 'max:255'],
             'umur' => ['required', 'integer', 'min:0', 'max:150'],
             'jenis_kelamin' => ['required', 'string'],
@@ -65,13 +65,13 @@ class PatientController extends Controller
         $totalVisits = $visits->count();
 
         $visitsPerYear = $visits
-            ->groupBy(fn ($visit) => Carbon::parse($visit->tanggal_berobat)->format('Y'))
-            ->map(fn ($yearVisits) => $yearVisits->count());
+            ->groupBy(fn($visit) => Carbon::parse($visit->tanggal_berobat)->format('Y'))
+            ->map(fn($yearVisits) => $yearVisits->count());
 
         $commonDiagnosis = $visits
-            ->filter(fn ($visit) => filled($visit->diagnostik))
+            ->filter(fn($visit) => filled($visit->diagnostik))
             ->groupBy('diagnostik')
-            ->map(fn ($group) => $group->count())
+            ->map(fn($group) => $group->count())
             ->sortDesc()
             ->take(5);
 
@@ -119,8 +119,8 @@ class PatientController extends Controller
                             $patient->umur,
                             $patient->jenis_kelamin,
                             $visit->tanggal_berobat
-                                ? Carbon::parse($visit->tanggal_berobat)->format('d/m/Y')
-                                : '-',
+                            ? Carbon::parse($visit->tanggal_berobat)->format('d/m/Y')
+                            : '-',
                             $visit->keluhan,
                             $visit->anamesis,
                             $visit->pemeriksaan_fisik,
@@ -148,7 +148,7 @@ class PatientController extends Controller
     public function update(Request $request, int $id): RedirectResponse
     {
         $validated = $request->validate([
-            'nik' => ['required', 'string', 'max:20', 'unique:patients,nik,' . $id],
+            'nik' => ['required', 'numeric', 'digits:16', 'unique:patients,nik,' . $id],
             'nama' => ['required', 'string', 'max:255'],
             'umur' => ['required', 'integer', 'min:0', 'max:150'],
             'jenis_kelamin' => ['required', 'string'],
