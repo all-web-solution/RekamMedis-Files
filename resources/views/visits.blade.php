@@ -25,6 +25,27 @@
         </div>
     @endif
 
+    @if ($errors->any())
+        <div
+            style="background-color: #fef2f2; border: 1px solid #fecaca; border-left: 6px solid #ef4444; border-radius: 10px; padding: 16px 20px; margin-bottom: 24px; box-shadow: 0 4px 6px -1px rgba(239, 68, 68, 0.1), 0 2px 4px -2px rgba(239, 68, 68, 0.1); transition: all 0.3s ease;">
+            <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 12px;">
+                <div
+                    style="background-color: #fee2e2; width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                    <i class="fas fa-exclamation-triangle" style="color: #dc2626; font-size: 14px;"></i>
+                </div>
+                <strong style="color: #991b1b; font-size: 15px; font-weight: 600; letter-spacing: -0.01em;">
+                    Gagal menyimpan kunjungan! Terdapat kesalahan pada input:
+                </strong>
+            </div>
+            <ul
+                style="margin: 0 0 0 46px; padding: 0; color: #b91c1c; font-size: 14px; line-height: 1.6; list-style-type: disc;">
+                @foreach ($errors->all() as $error)
+                    <li style="margin-bottom: 6px; padding-left: 4px;">{{ $error }}</li>
+                @endforeach
+            </ul>
+        </div>
+    @endif
+
     <div class="export-toolbar">
         <div class="export-toolbar-title">
             <div class="export-toolbar-icon">
@@ -143,19 +164,16 @@
                                         <i class="fas fa-eye"></i>
                                     </button>
 
-                                    <form
-                                        method="POST"
-                                        action="{{ route('visits.destroy', $visit->id) }}"
-                                        class="delete-inline-form"
-                                        data-confirm-delete="true"
+                                    <form method="POST" action="{{ route('visits.destroy', $visit->id) }}"
+                                        class="delete-inline-form" data-confirm-delete="true"
                                         data-title="Hapus kunjungan?"
                                         data-text="Kunjungan pasien {{ $visit->patient->nama ?? '-' }} pada tanggal {{ \Carbon\Carbon::parse($visit->tanggal_berobat)->format('d/m/Y') }} akan dihapus permanen."
-                                        data-confirm-text="Ya, hapus kunjungan"
-                                    >
+                                        data-confirm-text="Ya, hapus kunjungan">
                                         @csrf
                                         @method('DELETE')
 
-                                        <button type="submit" class="btn-danger-native btn-icon-danger-only" title="Hapus Kunjungan">
+                                        <button type="submit" class="btn-danger-native btn-icon-danger-only"
+                                            title="Hapus Kunjungan">
                                             <i class="fas fa-trash"></i>
                                         </button>
                                     </form>
@@ -199,51 +217,80 @@
                             <select name="patient_id" required>
                                 <option value="">Pilih Pasien</option>
                                 @foreach ($patients as $p)
-                                    <option value="{{ $p->id }}" @selected(request('patient_id') == $p->id)>
-                                        {{ $p->nama }} ({{ $p->nik }})
+                                    <option value="{{ $p->id }}"
+                                        {{ old('patient_id', request('patient_id')) == $p->id ? 'selected' : '' }}>
+                                        {{ $p->nama }} ({{ $p->nik ? $p->nik : '-' }})
                                     </option>
                                 @endforeach
                             </select>
+                            @error('patient_id')
+                                <small style="color: #dc2626; margin-top: 5px; display: block;">{{ $message }}</small>
+                            @enderror
                         </div>
 
                         <div class="input-group-custom">
                             <label><i class="fas fa-calendar"></i> Tanggal Berobat *</label>
-                            <input type="date" name="tanggal_berobat" value="{{ date('Y-m-d') }}" required>
+                            <input type="date" name="tanggal_berobat"
+                                value="{{ old('tanggal_berobat', date('Y-m-d')) }}" required>
+                            @error('tanggal_berobat')
+                                <small style="color: #dc2626; margin-top: 5px; display: block;">{{ $message }}</small>
+                            @enderror
                         </div>
 
                         <div class="input-group-custom">
                             <label><i class="fas fa-stethoscope"></i> Keluhan</label>
-                            <textarea name="keluhan" rows="2" placeholder="Keluhan pasien..."></textarea>
+                            <textarea name="keluhan" rows="2" placeholder="Keluhan pasien...">{{ old('keluhan') }}</textarea>
+                            @error('keluhan')
+                                <small style="color: #dc2626; margin-top: 5px; display: block;">{{ $message }}</small>
+                            @enderror
                         </div>
 
                         <div class="input-group-custom">
                             <label><i class="fas fa-notes-medical"></i> Anamesis</label>
-                            <textarea name="anamesis" rows="2" placeholder="Anamesis..."></textarea>
+                            <textarea name="anamesis" rows="2" placeholder="Anamesis...">{{ old('anamesis') }}</textarea>
+                            @error('anamesis')
+                                <small style="color: #dc2626; margin-top: 5px; display: block;">{{ $message }}</small>
+                            @enderror
                         </div>
 
                         <div class="input-group-custom">
                             <label><i class="fas fa-heartbeat"></i> Pemeriksaan Fisik</label>
-                            <textarea name="pemeriksaan_fisik" rows="2" placeholder="Hasil pemeriksaan fisik..."></textarea>
+                            <textarea name="pemeriksaan_fisik" rows="2" placeholder="Hasil pemeriksaan fisik...">{{ old('pemeriksaan_fisik') }}</textarea>
+                            @error('pemeriksaan_fisik')
+                                <small style="color: #dc2626; margin-top: 5px; display: block;">{{ $message }}</small>
+                            @enderror
                         </div>
 
                         <div class="input-group-custom">
                             <label><i class="fas fa-flask"></i> Pemeriksaan Lab</label>
-                            <textarea name="pemeriksaan_lab" rows="2" placeholder="Hasil pemeriksaan lab..."></textarea>
+                            <textarea name="pemeriksaan_lab" rows="2" placeholder="Hasil pemeriksaan lab...">{{ old('pemeriksaan_lab') }}</textarea>
+                            @error('pemeriksaan_lab')
+                                <small style="color: #dc2626; margin-top: 5px; display: block;">{{ $message }}</small>
+                            @enderror
                         </div>
 
                         <div class="input-group-custom">
                             <label><i class="fas fa-microscope"></i> Diagnostik</label>
-                            <textarea name="diagnostik" rows="2" placeholder="Diagnostik..."></textarea>
+                            <textarea name="diagnostik" rows="2" placeholder="Diagnostik...">{{ old('diagnostik') }}</textarea>
+                            @error('diagnostik')
+                                <small style="color: #dc2626; margin-top: 5px; display: block;">{{ $message }}</small>
+                            @enderror
                         </div>
 
                         <div class="input-group-custom">
                             <label><i class="fas fa-prescription"></i> Terapi</label>
-                            <textarea name="terapi" rows="2" placeholder="Terapi..."></textarea>
+                            <textarea name="terapi" rows="2" placeholder="Terapi...">{{ old('terapi') }}</textarea>
+                            @error('terapi')
+                                <small style="color: #dc2626; margin-top: 5px; display: block;">{{ $message }}</small>
+                            @enderror
                         </div>
 
                         <div class="input-group-custom" style="grid-column: span 2;">
                             <label><i class="fas fa-allergies"></i> Riwayat Alergi</label>
-                            <textarea name="riwayat_alergi" rows="2" placeholder="Riwayat alergi..."></textarea>
+                            <textarea name="riwayat_alergi" rows="2" placeholder="Riwayat alergi...">{{ old('riwayat_alergi') }}</textarea>
+                            @error('riwayat_alergi')
+                                <small style="color: #dc2626; margin-top: 5px; display: block;">{{ $message }}</small>
+                            @enderror
                         </div>
                     </div>
                 </div>
@@ -281,6 +328,12 @@
 
 @push('scripts')
     <script>
+        @if ($errors->any())
+            document.addEventListener('DOMContentLoaded', function() {
+                document.getElementById('modal').style.display = 'flex';
+            });
+        @endif
+
         const visitsBaseUrl = "{{ url('/visits') }}";
 
         function openModal() {
