@@ -79,8 +79,13 @@
                 <tbody id="patientTable">
                     @forelse($patients as $patient)
                         <tr id="row-{{ $patient->id }}">
-                            <td><span
-                                    style="background: var(--primary-bg); color: var(--primary); padding: 4px 8px; border-radius: 8px; font-size: 12px;">{{ $patient->nik }}</span>
+                            <td>
+                                @if ($patient->nik)
+                                    <span
+                                        style="background: var(--primary-bg); color: var(--primary); padding: 4px 8px; border-radius: 8px; font-size: 12px;">{{ $patient->nik }}</span>
+                                @else
+                                    <span style="color: #9ca3af; font-weight: bold;">-</span>
+                                @endif
                             </td>
                             <td><i class="fas fa-user-circle"
                                     style="color: var(--primary); margin-right: 8px;"></i><strong>{{ $patient->nama }}</strong>
@@ -146,11 +151,13 @@
                 <div class="modal-body-glass">
                     <div class="form-grid">
                         <div class="input-group-custom">
-                            <label><i class="fas fa-id-card"></i> NIK *</label>
-                            <input type="text" name="nik" id="nik" required
-                                placeholder="Masukkan 16 Digit NIK" maxlength="16" minlength="16" pattern="[0-9]{16}"
-                                title="NIK harus berupa 16 digit angka"
+                            <label><i class="fas fa-id-card"></i> NIK</label>
+
+                            <input type="text" name="nik" id="nik"
+                                placeholder="Masukkan 16 Digit NIK (Opsional)" maxlength="16" minlength="16"
+                                pattern="[0-9]{16}" title="NIK harus berupa 16 digit angka"
                                 oninput="this.value = this.value.replace(/[^0-9]/g, '')" value="{{ old('nik') }}">
+
                             @error('nik')
                                 <small style="color: #dc2626; margin-top: 5px; display: block;">{{ $message }}</small>
                             @enderror
@@ -291,7 +298,7 @@
                 .then(response => response.json())
                 .then(data => {
                     document.getElementById('showContent').innerHTML = `
-                    <div class="detail-item"><strong><i class="fas fa-id-card"></i> NIK:</strong> <span>${data.nik}</span></div>
+                    <div class="detail-item"><strong><i class="fas fa-id-card"></i> NIK:</strong> <span>${data.nik ? data.nik : '-'}</span></div>
                     <div class="detail-item"><strong><i class="fas fa-user"></i> Nama:</strong> <span>${data.nama}</span></div>
                     <div class="detail-item"><strong><i class="fas fa-birthday-cake"></i> Umur:</strong> <span>${data.umur} tahun</span></div>
                     <div class="detail-item"><strong><i class="fas fa-venus-mars"></i> Jenis Kelamin:</strong> <span>${data.jenis_kelamin}</span></div>

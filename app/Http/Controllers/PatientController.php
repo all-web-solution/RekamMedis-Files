@@ -23,7 +23,7 @@ class PatientController extends Controller
     public function store(Request $request): RedirectResponse
     {
         $validated = $request->validate([
-            'nik' => ['required', 'numeric', 'digits:16', 'unique:patients,nik'],
+            'nik' => ['nullable', 'numeric', 'digits:16', 'unique:patients,nik'],
             'nama' => ['required', 'string', 'max:255'],
             'umur' => ['required', 'integer', 'min:0', 'max:150'],
             'jenis_kelamin' => ['required', 'string'],
@@ -148,7 +148,7 @@ class PatientController extends Controller
     public function update(Request $request, int $id): RedirectResponse
     {
         $validated = $request->validate([
-            'nik' => ['required', 'numeric', 'digits:16', 'unique:patients,nik,' . $id],
+            'nik' => ['nullable', 'numeric', 'digits:16', 'unique:patients,nik,' . $id],
             'nama' => ['required', 'string', 'max:255'],
             'umur' => ['required', 'integer', 'min:0', 'max:150'],
             'jenis_kelamin' => ['required', 'string'],
