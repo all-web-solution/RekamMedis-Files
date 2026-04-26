@@ -25,7 +25,7 @@ class PatientController extends Controller
         $validated = $request->validate([
             'nik' => ['nullable', 'numeric', 'digits:16', 'unique:patients,nik'],
             'nama' => ['required', 'string', 'max:255'],
-            'umur' => ['required', 'integer', 'min:0', 'max:150'],
+            'umur' => ['required', 'string', 'max:50'],
             'jenis_kelamin' => ['required', 'string'],
             'tinggi' => ['nullable', 'numeric'],
             'berat' => ['nullable', 'numeric'],
@@ -150,7 +150,7 @@ class PatientController extends Controller
         $validated = $request->validate([
             'nik' => ['nullable', 'numeric', 'digits:16', 'unique:patients,nik,' . $id],
             'nama' => ['required', 'string', 'max:255'],
-            'umur' => ['required', 'integer', 'min:0', 'max:150'],
+            'umur' => ['required', 'string', 'max:50'],
             'jenis_kelamin' => ['required', 'string'],
             'tinggi' => ['nullable', 'numeric'],
             'berat' => ['nullable', 'numeric'],

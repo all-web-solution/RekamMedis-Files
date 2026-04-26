@@ -90,7 +90,7 @@
                             <td><i class="fas fa-user-circle"
                                     style="color: var(--primary); margin-right: 8px;"></i><strong>{{ $patient->nama }}</strong>
                             </td>
-                            <td>{{ $patient->umur }} th</td>
+                            <td>{{ $patient->umur }}</td>
                             <td>
                                 @if ($patient->jenis_kelamin == 'Laki-laki')
                                     <i class="fas fa-mars" style="color: var(--primary);"></i>
@@ -172,8 +172,8 @@
                         </div>
                         <div class="input-group-custom">
                             <label><i class="fas fa-birthday-cake"></i> Umur *</label>
-                            <input type="number" name="umur" id="umur" required placeholder="Usia dalam tahun"
-                                value="{{ old('umur') }}">
+                            <input type="text" name="umur" id="umur" required
+                                placeholder="Contoh: 25 Tahun atau 5 Bulan" value="{{ old('umur') }}">
                             @error('umur')
                                 <small style="color: #dc2626; margin-top: 5px; display: block;">{{ $message }}</small>
                             @enderror
@@ -300,7 +300,7 @@
                     document.getElementById('showContent').innerHTML = `
                     <div class="detail-item"><strong><i class="fas fa-id-card"></i> NIK:</strong> <span>${data.nik ? data.nik : '-'}</span></div>
                     <div class="detail-item"><strong><i class="fas fa-user"></i> Nama:</strong> <span>${data.nama}</span></div>
-                    <div class="detail-item"><strong><i class="fas fa-birthday-cake"></i> Umur:</strong> <span>${data.umur} tahun</span></div>
+                    <div class="detail-item"><strong><i class="fas fa-birthday-cake"></i> Umur:</strong> <span>${data.umur}</span></div>
                     <div class="detail-item"><strong><i class="fas fa-venus-mars"></i> Jenis Kelamin:</strong> <span>${data.jenis_kelamin}</span></div>
                     <div class="detail-item"><strong><i class="fas fa-ruler"></i> Tinggi:</strong> <span>${data.tinggi ? data.tinggi + ' cm' : '-'}</span></div>
                     <div class="detail-item"><strong><i class="fas fa-weight-scale"></i> Berat:</strong> <span>${data.berat ? data.berat + ' kg' : '-'}</span></div>
