@@ -222,7 +222,7 @@
         <div class="profile-name">{{ $patient->nama }}</div>
 
         <div class="profile-nik">
-            <i class="fas fa-id-card"></i> NIK: {{ $patient->nik }}
+            <i class="fas fa-id-card"></i> NIK: {{ $patient->nik ?: '-' }}
         </div>
 
         <div class="profile-action-group">
@@ -234,10 +234,6 @@
             <a href="{{ route('patients.visits.export', $patient) }}" class="btn-profile-action btn-profile-export">
                 <i class="fas fa-file-export"></i> Export Riwayat
             </a>
-
-            <button type="button" class="btn-profile-action btn-profile-edit" onclick="editPatient({{ $patient->id }})">
-                <i class="fas fa-edit"></i> Edit Data
-            </button>
 
             <form method="POST" action="{{ route('patients.destroy', $patient->id) }}" class="delete-inline-form"
                 data-confirm-delete="true" data-title="Hapus pasien?"
@@ -294,7 +290,7 @@
                     <div class="info-icon"><i class="fas fa-id-card"></i></div>
                     <div>
                         <div class="info-label">NIK</div>
-                        <div class="info-value">{{ $patient->nik }}</div>
+                        <div class="info-value">{{ $patient->nik ?: '-' }}</div>
                     </div>
                 </div>
 
@@ -310,7 +306,7 @@
                     <div class="info-icon"><i class="fas fa-birthday-cake"></i></div>
                     <div>
                         <div class="info-label">Umur</div>
-                        <div class="info-value">{{ $patient->umur }} tahun</div>
+                        <div class="info-value">{{ $patient->umur }}</div>
                     </div>
                 </div>
 
@@ -489,67 +485,6 @@
         </div>
     </div>
 
-    <div id="editModal" class="modal-glass">
-        <div class="modal-content-glass">
-            <div class="modal-header-glass">
-                <h3><i class="fas fa-edit"></i> Edit Pasien</h3>
-                <button type="button" class="close-modal" onclick="closeEditModal()">&times;</button>
-            </div>
-
-            <form id="editForm" method="POST">
-                @csrf
-                @method('PUT')
-
-                <div class="modal-body-glass">
-                    <div class="form-grid">
-                        <div class="input-group-custom">
-                            <label><i class="fas fa-id-card"></i> NIK *</label>
-                            <input type="text" name="nik" id="edit_nik" required>
-                        </div>
-
-                        <div class="input-group-custom">
-                            <label><i class="fas fa-user"></i> Nama Lengkap *</label>
-                            <input type="text" name="nama" id="edit_nama" required>
-                        </div>
-
-                        <div class="input-group-custom">
-                            <label><i class="fas fa-birthday-cake"></i> Umur *</label>
-                            <input type="number" name="umur" id="edit_umur" required>
-                        </div>
-
-                        <div class="input-group-custom">
-                            <label><i class="fas fa-venus-mars"></i> Jenis Kelamin *</label>
-                            <select name="jenis_kelamin" id="edit_jenis_kelamin" required>
-                                <option value="Laki-laki">Laki-laki</option>
-                                <option value="Perempuan">Perempuan</option>
-                            </select>
-                        </div>
-
-                        <div class="input-group-custom">
-                            <label><i class="fas fa-ruler"></i> Tinggi Badan (cm)</label>
-                            <input type="number" step="0.01" name="tinggi" id="edit_tinggi">
-                        </div>
-
-                        <div class="input-group-custom">
-                            <label><i class="fas fa-weight-scale"></i> Berat Badan (kg)</label>
-                            <input type="number" step="0.01" name="berat" id="edit_berat">
-                        </div>
-                    </div>
-                </div>
-
-                <div class="modal-footer-glass">
-                    <button type="button" class="btn-secondary" onclick="closeEditModal()">
-                        <i class="fas fa-times"></i> Batal
-                    </button>
-
-                    <button type="submit" class="btn-primary">
-                        <i class="fas fa-save"></i> Update
-                    </button>
-                </div>
-            </form>
-        </div>
-    </div>
-
     <div id="visitDetailModal" class="modal-glass">
         <div class="modal-content-glass" style="max-width: 600px;">
             <div class="modal-header-glass">
@@ -570,41 +505,7 @@
 
 @push('scripts')
     <script>
-        const patientBaseUrl = "{{ url('/patients') }}";
         const visitBaseUrl = "{{ url('/visits') }}";
-
-        function editPatient(id) {
-            fetch(`${patientBaseUrl}/${id}/edit`, {
-                    headers: {
-                        'Accept': 'application/json',
-                        'X-Requested-With': 'XMLHttpRequest'
-                    }
-                })
-                .then(response => {
-                    if (!response.ok) {
-                        throw new Error('Gagal mengambil data pasien.');
-                    }
-
-                    return response.json();
-                })
-                .then(data => {
-                    document.getElementById('edit_nik').value = data.nik ?? '';
-                    document.getElementById('edit_nama').value = data.nama ?? '';
-                    document.getElementById('edit_umur').value = data.umur ?? '';
-                    document.getElementById('edit_jenis_kelamin').value = data.jenis_kelamin ?? 'Laki-laki';
-                    document.getElementById('edit_tinggi').value = data.tinggi ?? '';
-                    document.getElementById('edit_berat').value = data.berat ?? '';
-                    document.getElementById('editForm').action = `${patientBaseUrl}/${data.id}`;
-                    document.getElementById('editModal').style.display = 'flex';
-                })
-                .catch(error => {
-                    alert(error.message);
-                });
-        }
-
-        function closeEditModal() {
-            document.getElementById('editModal').style.display = 'none';
-        }
 
         function showVisitDetail(id) {
             fetch(`${visitBaseUrl}/${id}`, {
@@ -654,10 +555,6 @@
         }
 
         window.addEventListener('click', function(event) {
-            if (event.target === document.getElementById('editModal')) {
-                closeEditModal();
-            }
-
             if (event.target === document.getElementById('visitDetailModal')) {
                 closeVisitDetailModal();
             }
