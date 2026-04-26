@@ -222,7 +222,7 @@
         <div class="profile-name">{{ $patient->nama }}</div>
 
         <div class="profile-nik">
-            <i class="fas fa-id-card"></i> NIK: {{ $patient->nik ?: '-' }}
+            <i class="fas fa-id-card"></i> NIK: {{ $patient->nik }}
         </div>
 
         <div class="profile-action-group">
@@ -234,6 +234,10 @@
             <a href="{{ route('patients.visits.export', $patient) }}" class="btn-profile-action btn-profile-export">
                 <i class="fas fa-file-export"></i> Export Riwayat
             </a>
+
+            <button type="button" class="btn-profile-action btn-profile-edit" onclick="editPatient({{ $patient->id }})">
+                <i class="fas fa-edit"></i> Edit Data
+            </button>
 
             <form method="POST" action="{{ route('patients.destroy', $patient->id) }}" class="delete-inline-form"
                 data-confirm-delete="true" data-title="Hapus pasien?"
@@ -290,7 +294,7 @@
                     <div class="info-icon"><i class="fas fa-id-card"></i></div>
                     <div>
                         <div class="info-label">NIK</div>
-                        <div class="info-value">{{ $patient->nik ?: '-' }}</div>
+                        <div class="info-value">{{ $patient->nik }}</div>
                     </div>
                 </div>
 
@@ -321,6 +325,22 @@
                                 <i class="fas fa-venus"></i> Perempuan
                             @endif
                         </div>
+                    </div>
+                </div>
+
+                <div class="info-item">
+                    <div class="info-icon"><i class="fas fa-phone"></i></div>
+                    <div>
+                        <div class="info-label">No. Telepon</div>
+                        <div class="info-value">{{ $patient->no_telp ?? '-' }}</div>
+                    </div>
+                </div>
+
+                <div class="info-item">
+                    <div class="info-icon"><i class="fas fa-map-marker-alt"></i></div>
+                    <div>
+                        <div class="info-label">Alamat</div>
+                        <div class="info-value">{{ $patient->alamat ?? '-' }}</div>
                     </div>
                 </div>
 
@@ -485,6 +505,78 @@
         </div>
     </div>
 
+    <div id="editModal" class="modal-glass">
+        <div class="modal-content-glass">
+            <div class="modal-header-glass">
+                <h3><i class="fas fa-edit"></i> Edit Pasien</h3>
+                <button type="button" class="close-modal" onclick="closeEditModal()">&times;</button>
+            </div>
+
+            <form id="editForm" method="POST">
+                @csrf
+                @method('PUT')
+
+                <div class="modal-body-glass">
+                    <div class="form-grid">
+                        <div class="input-group-custom">
+                            <label><i class="fas fa-id-card"></i> NIK *</label>
+                            <input type="text" name="nik" id="edit_nik" required>
+                        </div>
+
+                        <div class="input-group-custom">
+                            <label><i class="fas fa-user"></i> Nama Lengkap *</label>
+                            <input type="text" name="nama" id="edit_nama" required>
+                        </div>
+
+                        <div class="input-group-custom">
+                            <label><i class="fas fa-birthday-cake"></i> Umur *</label>
+                            <input type="text" name="umur" id="edit_umur" required placeholder="Contoh: 25 Tahun">
+                        </div>
+
+                        <div class="input-group-custom">
+                            <label><i class="fas fa-venus-mars"></i> Jenis Kelamin *</label>
+                            <select name="jenis_kelamin" id="edit_jenis_kelamin" required>
+                                <option value="Laki-laki">Laki-laki</option>
+                                <option value="Perempuan">Perempuan</option>
+                            </select>
+                        </div>
+
+                        <div class="input-group-custom">
+                            <label><i class="fas fa-ruler"></i> Tinggi Badan (cm)</label>
+                            <input type="number" step="0.01" name="tinggi" id="edit_tinggi">
+                        </div>
+
+                        <div class="input-group-custom">
+                            <label><i class="fas fa-weight-scale"></i> Berat Badan (kg)</label>
+                            <input type="number" step="0.01" name="berat" id="edit_berat">
+                        </div>
+                        
+                        <div class="input-group-custom">
+                            <label><i class="fas fa-phone"></i> No. Telepon</label>
+                            <input type="text" name="no_telp" id="edit_no_telp" placeholder="Contoh: 081234567890">
+                        </div>
+
+                        <div class="input-group-custom" style="grid-column: 1 / -1;">
+                            <label><i class="fas fa-map-marker-alt"></i> Alamat</label>
+                            <textarea name="alamat" id="edit_alamat" rows="2" placeholder="Masukkan alamat lengkap pasien" 
+                                style="width: 100%; border: 1px solid var(--border-color); border-radius: 8px; padding: 10px; font-family: inherit;"></textarea>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="modal-footer-glass">
+                    <button type="button" class="btn-secondary" onclick="closeEditModal()">
+                        <i class="fas fa-times"></i> Batal
+                    </button>
+
+                    <button type="submit" class="btn-primary">
+                        <i class="fas fa-save"></i> Update
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <div id="visitDetailModal" class="modal-glass">
         <div class="modal-content-glass" style="max-width: 600px;">
             <div class="modal-header-glass">
@@ -505,7 +597,46 @@
 
 @push('scripts')
     <script>
+        const patientBaseUrl = "{{ url('/patients') }}";
         const visitBaseUrl = "{{ url('/visits') }}";
+
+        function editPatient(id) {
+            fetch(`${patientBaseUrl}/${id}/edit`, {
+                    headers: {
+                        'Accept': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+                })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Gagal mengambil data pasien.');
+                    }
+
+                    return response.json();
+                })
+                .then(data => {
+                    document.getElementById('edit_nik').value = data.nik ?? '';
+                    document.getElementById('edit_nama').value = data.nama ?? '';
+                    document.getElementById('edit_umur').value = data.umur ?? '';
+                    document.getElementById('edit_jenis_kelamin').value = data.jenis_kelamin ?? 'Laki-laki';
+                    document.getElementById('edit_tinggi').value = data.tinggi ?? '';
+                    document.getElementById('edit_berat').value = data.berat ?? '';
+                    
+                    // Tambahan set data telepon dan alamat
+                    document.getElementById('edit_no_telp').value = data.no_telp ?? '';
+                    document.getElementById('edit_alamat').value = data.alamat ?? '';
+                    
+                    document.getElementById('editForm').action = `${patientBaseUrl}/${data.id}`;
+                    document.getElementById('editModal').style.display = 'flex';
+                })
+                .catch(error => {
+                    alert(error.message);
+                });
+        }
+
+        function closeEditModal() {
+            document.getElementById('editModal').style.display = 'none';
+        }
 
         function showVisitDetail(id) {
             fetch(`${visitBaseUrl}/${id}`, {
@@ -531,11 +662,12 @@
                         }) :
                         '-';
 
+                    // Perbaikan typo data.anamesis menjadi data.anamnesis
                     document.getElementById('visitDetailContent').innerHTML = `
                 <div class="detail-item"><strong><i class="fas fa-calendar"></i> Tanggal:</strong> <span>${date}</span></div>
                 <div class="detail-item"><strong><i class="fas fa-user"></i> Pasien:</strong> <span>${data.patient?.nama || '-'}</span></div>
                 <div class="detail-item"><strong><i class="fas fa-stethoscope"></i> Keluhan:</strong> <span>${data.keluhan || '-'}</span></div>
-                <div class="detail-item"><strong><i class="fas fa-notes-medical"></i> Anamesis:</strong> <span>${data.anamesis || '-'}</span></div>
+                <div class="detail-item"><strong><i class="fas fa-notes-medical"></i> Anamnesis:</strong> <span>${data.anamnesis || '-'}</span></div>
                 <div class="detail-item"><strong><i class="fas fa-heartbeat"></i> Pemeriksaan Fisik:</strong> <span>${data.pemeriksaan_fisik || '-'}</span></div>
                 <div class="detail-item"><strong><i class="fas fa-flask"></i> Pemeriksaan Lab:</strong> <span>${data.pemeriksaan_lab || '-'}</span></div>
                 <div class="detail-item"><strong><i class="fas fa-microscope"></i> Diagnostik:</strong> <span>${data.diagnostik || '-'}</span></div>
@@ -555,6 +687,10 @@
         }
 
         window.addEventListener('click', function(event) {
+            if (event.target === document.getElementById('editModal')) {
+                closeEditModal();
+            }
+
             if (event.target === document.getElementById('visitDetailModal')) {
                 closeVisitDetailModal();
             }
