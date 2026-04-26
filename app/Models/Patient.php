@@ -13,7 +13,9 @@ class Patient extends Model
         'jenis_kelamin',
         'nik',
         'tinggi',
-        'berat'
+        'berat',
+        'alamat',   // Tambahkan ini
+        'no_telp',  // Tambahkan ini
     ];
 
     public function visits(): HasMany

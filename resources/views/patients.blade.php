@@ -33,7 +33,7 @@
                     <i class="fas fa-exclamation-triangle" style="color: #dc2626; font-size: 14px;"></i>
                 </div>
                 <strong style="color: #991b1b; font-size: 15px; font-weight: 600; letter-spacing: -0.01em;">
-                    Gagal menyimpan data! Terdapat kesalahan pada input:
+                    Gagal menyimpan data! Terdapat kesalahan pada input: {{$errors->count()}} {{ Str::plural('error', $errors->count()) }}.
                 </strong>
             </div>
             <ul
@@ -136,7 +136,6 @@
         </div>
     </div>
 
-    <!-- Modal Form (sama seperti sebelumnya) -->
     <div id="modal" class="modal-glass">
         <div class="modal-content-glass">
             <div class="modal-header-glass">
@@ -152,12 +151,10 @@
                     <div class="form-grid">
                         <div class="input-group-custom">
                             <label><i class="fas fa-id-card"></i> NIK</label>
-
                             <input type="text" name="nik" id="nik"
                                 placeholder="Masukkan 16 Digit NIK (Opsional)" maxlength="16" minlength="16"
                                 pattern="[0-9]{16}" title="NIK harus berupa 16 digit angka"
                                 oninput="this.value = this.value.replace(/[^0-9]/g, '')" value="{{ old('nik') }}">
-
                             @error('nik')
                                 <small style="color: #dc2626; margin-top: 5px; display: block;">{{ $message }}</small>
                             @enderror
@@ -206,6 +203,24 @@
                                 <small style="color: #dc2626; margin-top: 5px; display: block;">{{ $message }}</small>
                             @enderror
                         </div>
+
+                        <div class="input-group-custom">
+                            <label><i class="fas fa-phone"></i> No. Telepon</label>
+                            <input type="text" name="no_telp" id="no_telp" placeholder="Contoh: 081234567890"
+                                value="{{ old('no_telp') }}">
+                            @error('no_telp')
+                                <small style="color: #dc2626; margin-top: 5px; display: block;">{{ $message }}</small>
+                            @enderror
+                        </div>
+
+                        <div class="input-group-custom" style="grid-column: 1 / -1;">
+                            <label><i class="fas fa-map-marker-alt"></i> Alamat</label>
+                            <textarea name="alamat" id="alamat" rows="2" placeholder="Masukkan alamat lengkap pasien" 
+                                style="width: 100%; border: 1px solid var(--border-color); border-radius: 8px; padding: 10px; font-family: inherit;">{{ old('alamat') }}</textarea>
+                            @error('alamat')
+                                <small style="color: #dc2626; margin-top: 5px; display: block;">{{ $message }}</small>
+                            @enderror
+                        </div>
                     </div>
                 </div>
                 <div class="modal-footer-glass">
@@ -220,7 +235,6 @@
         </div>
     </div>
 
-    <!-- Modal Show -->
     <div id="showModal" class="modal-glass">
         <div class="modal-content-glass">
             <div class="modal-header-glass">
@@ -270,6 +284,8 @@
             document.getElementById('patientId').value = '';
             document.getElementById('method').value = 'POST';
             document.getElementById('patientForm').action = '{{ route('patients.store') }}';
+            // Reset textarea juga karena kadang form.reset() tidak mereset innerHTML textarea
+            document.getElementById('alamat').value = '';
             document.getElementById('submitBtn').innerHTML = '<i class="fas fa-save"></i> Simpan';
             document.getElementById('modal').style.display = 'flex';
         }
@@ -286,6 +302,11 @@
                     document.getElementById('jenis_kelamin').value = data.jenis_kelamin;
                     document.getElementById('tinggi').value = data.tinggi;
                     document.getElementById('berat').value = data.berat;
+                    
+                    // Tambahan set value No Telp & Alamat ke form
+                    document.getElementById('no_telp').value = data.no_telp || '';
+                    document.getElementById('alamat').value = data.alamat || '';
+                    
                     document.getElementById('method').value = 'PUT';
                     document.getElementById('patientForm').action = `/patients/${data.id}`;
                     document.getElementById('submitBtn').innerHTML = '<i class="fas fa-save"></i> Update';
@@ -304,6 +325,10 @@
                     <div class="detail-item"><strong><i class="fas fa-venus-mars"></i> Jenis Kelamin:</strong> <span>${data.jenis_kelamin}</span></div>
                     <div class="detail-item"><strong><i class="fas fa-ruler"></i> Tinggi:</strong> <span>${data.tinggi ? data.tinggi + ' cm' : '-'}</span></div>
                     <div class="detail-item"><strong><i class="fas fa-weight-scale"></i> Berat:</strong> <span>${data.berat ? data.berat + ' kg' : '-'}</span></div>
+                    
+                    <div class="detail-item"><strong><i class="fas fa-phone"></i> No. Telepon:</strong> <span>${data.no_telp ? data.no_telp : '-'}</span></div>
+                    <div class="detail-item" style="grid-column: 1 / -1;"><strong><i class="fas fa-map-marker-alt"></i> Alamat:</strong> <span>${data.alamat ? data.alamat : '-'}</span></div>
+                    
                     <div class="detail-item"><strong><i class="fas fa-calendar"></i> Dibuat:</strong> <span>${new Date(data.created_at).toLocaleDateString('id-ID')}</span></div>
                 `;
                     document.getElementById('showModal').style.display = 'flex';

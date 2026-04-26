@@ -29,6 +29,8 @@ class PatientController extends Controller
             'jenis_kelamin' => ['required', 'string'],
             'tinggi' => ['nullable', 'numeric'],
             'berat' => ['nullable', 'numeric'],
+            'alamat' => 'nullable|string',
+            'no_telp' => 'nullable|string|max:20',
         ]);
 
         try {
