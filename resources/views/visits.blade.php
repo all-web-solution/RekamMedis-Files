@@ -163,6 +163,9 @@
                                         style="background: var(--primary); padding: 8px 12px;">
                                         <i class="fas fa-eye"></i>
                                     </button>
+                                    <button type="button" class="btn-icon" onclick="editVisit({{ $visit->id }})" style="background: #eab308; padding: 8px 12px;" title="Edit Kunjungan">
+                                        <i class="fas fa-edit"></i>
+                                    </button>
 
                                     <form method="POST" action="{{ route('visits.destroy', $visit->id) }}"
                                         class="delete-inline-form" data-confirm-delete="true"
@@ -324,6 +327,82 @@
             </div>
         </div>
     </div>
+    <div id="editModal" class="modal-glass" style="display: none;">
+    <div class="modal-content-glass" style="max-width: 700px;">
+        <div class="modal-header-glass">
+            <h3><i class="fas fa-edit"></i> Edit Kunjungan</h3>
+            <button type="button" class="close-modal" onclick="closeEditModal()">&times;</button>
+        </div>
+
+        <form id="editForm" method="POST">
+            @csrf
+            @method('PUT') <div class="modal-body-glass">
+                <div class="form-grid">
+                    <div class="input-group-custom">
+                        <label><i class="fas fa-user"></i> Pasien *</label>
+                        <select name="patient_id" id="edit_patient_id" required>
+                            <option value="">Pilih Pasien</option>
+                            @foreach ($patients as $p)
+                                <option value="{{ $p->id }}">
+                                    {{ $p->nama }} ({{ $p->nik ? $p->nik : '-' }})
+                                </option>
+                            @endforeach
+                        </select>
+                    </div>
+
+                    <div class="input-group-custom">
+                        <label><i class="fas fa-calendar"></i> Tanggal Berobat *</label>
+                        <input type="date" name="tanggal_berobat" id="edit_tanggal_berobat" required>
+                    </div>
+
+                    <div class="input-group-custom">
+                        <label><i class="fas fa-stethoscope"></i> Keluhan</label>
+                        <textarea name="keluhan" id="edit_keluhan" rows="2"></textarea>
+                    </div>
+
+                    <div class="input-group-custom">
+                        <label><i class="fas fa-notes-medical"></i> Anamesis</label>
+                        <textarea name="anamesis" id="edit_anamesis" rows="2"></textarea>
+                    </div>
+
+                    <div class="input-group-custom">
+                        <label><i class="fas fa-heartbeat"></i> Pemeriksaan Fisik</label>
+                        <textarea name="pemeriksaan_fisik" id="edit_pemeriksaan_fisik" rows="2"></textarea>
+                    </div>
+
+                    <div class="input-group-custom">
+                        <label><i class="fas fa-flask"></i> Pemeriksaan Lab</label>
+                        <textarea name="pemeriksaan_lab" id="edit_pemeriksaan_lab" rows="2"></textarea>
+                    </div>
+
+                    <div class="input-group-custom">
+                        <label><i class="fas fa-microscope"></i> Diagnostik</label>
+                        <textarea name="diagnostik" id="edit_diagnostik" rows="2"></textarea>
+                    </div>
+
+                    <div class="input-group-custom">
+                        <label><i class="fas fa-prescription"></i> Terapi</label>
+                        <textarea name="terapi" id="edit_terapi" rows="2"></textarea>
+                    </div>
+
+                    <div class="input-group-custom" style="grid-column: span 2;">
+                        <label><i class="fas fa-allergies"></i> Riwayat Alergi</label>
+                        <textarea name="riwayat_alergi" id="edit_riwayat_alergi" rows="2"></textarea>
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal-footer-glass">
+                <button type="button" class="btn-secondary" onclick="closeEditModal()">
+                    <i class="fas fa-times"></i> Batal
+                </button>
+                <button type="submit" class="btn-primary" style="background: #eab308; border-color: #ca8a04;">
+                    <i class="fas fa-save"></i> Update
+                </button>
+             </div>
+            </form>
+        </div>
+    </div>
 @endsection
 
 @push('scripts')
@@ -407,5 +486,59 @@
                 openModal();
             });
         @endif
+
+        // Tambahkan di dalam blok <script> yang sudah ada
+
+        function editVisit(id) {
+            fetch(`${visitsBaseUrl}/${id}`, {
+                headers: {
+                    'Accept': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('editForm').action = `${visitsBaseUrl}/${id}`;
+                
+                // Perbaikan pengisian Tanggal:
+                if (data.tanggal_berobat) {
+                    // Mengambil 10 karakter pertama (YYYY-MM-DD)
+                    // Ini akan bekerja baik untuk format "2024-05-20 00:00:00" maupun "2024-05-20T00:00..."
+                    const dateOnly = data.tanggal_berobat.substring(0, 10);
+                    document.getElementById('edit_tanggal_berobat').value = dateOnly;
+                }
+
+                // Pastikan ID ini sesuai dengan yang ada di HTML Modal Edit Anda
+                document.getElementById('edit_patient_id').value = data.patient_id;
+                document.getElementById('edit_keluhan').value = data.keluhan || '';
+                document.getElementById('edit_anamesis').value = data.anamesis || '';
+                document.getElementById('edit_pemeriksaan_fisik').value = data.pemeriksaan_fisik || '';
+                document.getElementById('edit_pemeriksaan_lab').value = data.pemeriksaan_lab || '';
+                document.getElementById('edit_diagnostik').value = data.diagnostik || '';
+                document.getElementById('edit_terapi').value = data.terapi || '';
+                document.getElementById('edit_riwayat_alergi').value = data.riwayat_alergi || '';
+
+                document.getElementById('editModal').style.display = 'flex';
+            });
+        }
+
+        function closeEditModal() {
+            document.getElementById('editModal').style.display = 'none';
+        }
+
+        // UPDATE: Jangan lupa tambahkan penutup modal jika klik di luar area modal
+        // Cari kode window.addEventListener('click', ...) yang sudah ada, dan tambahkan kondisi ini di dalamnya:
+        window.addEventListener('click', function(event) {
+            if (event.target === document.getElementById('modal')) {
+                closeModal();
+            }
+            if (event.target === document.getElementById('detailModal')) {
+                closeDetailModal();
+            }
+            // TAMBAHKAN BARIS INI
+            if (event.target === document.getElementById('editModal')) {
+                closeEditModal();
+            }
+        });
     </script>
 @endpush

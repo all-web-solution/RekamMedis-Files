@@ -161,4 +161,35 @@ class VisitController extends Controller
             ->orderByDesc('tanggal_berobat')
             ->orderByDesc('id');
     }
+    public function update(Request $request, int $id): RedirectResponse
+    {
+        // 1. Validasi input (sama persis dengan store)
+        $validated = $request->validate([
+            'patient_id' => ['required', 'exists:patients,id'],
+            'tanggal_berobat' => ['required', 'date'],
+            'keluhan' => ['nullable', 'string'],
+            'anamesis' => ['nullable', 'string'],
+            'pemeriksaan_fisik' => ['nullable', 'string'],
+            'pemeriksaan_lab' => ['nullable', 'string'],
+            'diagnostik' => ['nullable', 'string'],
+            'terapi' => ['nullable', 'string'],
+            'riwayat_alergi' => ['nullable', 'string'],
+            'from_patient' => ['nullable'],
+        ]);
+
+        // 2. Cari data berdasarkan ID, lalu Update
+        $visit = Visit::findOrFail($id);
+        $visit->update(collect($validated)->except('from_patient')->toArray());
+
+        // 3. Redirect kembali dengan pesan sukses
+        if ($request->filled('from_patient')) {
+            return redirect()
+                ->route('patients.show', $validated['patient_id'])
+                ->with('success', 'Data kunjungan berhasil diperbarui!');
+        }
+
+        return redirect()
+            ->route('visits')
+            ->with('success', 'Data kunjungan berhasil diperbarui!');
+    }
 }

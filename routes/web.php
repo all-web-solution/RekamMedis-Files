@@ -42,4 +42,6 @@ Route::middleware('auth')->group(function () {
     Route::get('/visits/filter', [VisitController::class, 'filter'])->name('visits.filter');
     Route::get('/visits/{id}', [VisitController::class, 'show'])->name('visits.show');
     Route::delete('/visits/{id}', [VisitController::class, 'destroy'])->name('visits.destroy');
+    // Route untuk memproses form edit (method PUT)
+    Route::put('/visits/{id}', [VisitController::class, 'update'])->name('visits.update');
 });
